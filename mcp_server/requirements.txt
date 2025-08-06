@@ -1,0 +1,26 @@
+mcp>=1.0.0
+pymongo>=4.6.0
+python-dotenv>=1.0.0
+asyncio
+aiohttp>=3.9.0
+pydantic>=2.5.0
+typing-extensions>=4.8.0
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0 
+# GitHub MCP Server Requirements
+# Install with: pip install -r requirements_github.txt
+
+# Core dependencies
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# MCP Server dependencies (already included in main requirements.txt)
+# mcp>=1.12.3
+
+# Optional: Enhanced HTTP handling
+httpx>=0.25.0
+
+# Development dependencies (optional)
+# pytest>=7.0.0
+# black>=23.0.0
+# flake8>=6.0.0
