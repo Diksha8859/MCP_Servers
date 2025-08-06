@@ -33,7 +33,7 @@ MCP/
 │   ├── handlers/
 │   │   ├── tool_handler.py     # MongoDB request handling
 │   │   └── github_handler.py   # GitHub request handling
-│   ├── main.py                 # MongoDB MCP server
+│   ├── mongodb_server.py       # MongoDB MCP server
 │   ├── github_server.py        # GitHub MCP server
 │   ├── requirements.txt        # Python dependencies
 │   └── docs/                   # Comprehensive documentation
@@ -91,7 +91,7 @@ MCP/
      "mcpServers": {
        "mongodb-mcp-server": {
          "command": "python",
-         "args": ["/path/to/mcp_server/main.py"],
+         "args": ["/path/to/mcp_server/mongodb_server.py"],
          "env": {
            "MONGODB_URI": "mongodb://localhost:27017/",
            "MONGODB_DATABASE": "your_database"
@@ -103,7 +103,7 @@ MCP/
 
 2. **Start the server**
    ```bash
-   python main.py
+   python mongodb_server.py
    ```
 
 ### GitHub Server Setup
