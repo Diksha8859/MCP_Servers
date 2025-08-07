@@ -185,6 +185,165 @@ async def github_list_pull_requests(
     logger.info(f"Listing pull requests for {owner}/{repo} (state: {state})")
     return github_tool.list_pull_requests(owner, repo, state, per_page)
 
+# Pull Request Review Operations
+@mcp.tool()
+async def github_get_pull_request_reviews(owner: str, repo: str, pull_number: int) -> str:
+    """
+    Get reviews for a specific pull request.
+    
+    Args:
+        owner: Repository owner
+        repo: Repository name
+        pull_number: Pull request number
+        
+    Returns:
+        JSON string with pull request reviews
+    """
+    logger.info(f"Getting reviews for PR #{pull_number} in {owner}/{repo}")
+    return github_tool.get_pull_request_reviews(owner, repo, pull_number)
+
+@mcp.tool()
+async def github_create_pull_request_review(
+    owner: str, 
+    repo: str, 
+    pull_number: int,
+    event: str = "COMMENT",
+    body: Optional[str] = None,
+    comments: Optional[List[Dict[str, Any]]] = None
+) -> str:
+    """
+    Create a review for a pull request.
+    
+    Args:
+        owner: Repository owner
+        repo: Repository name
+        pull_number: Pull request number
+        event: Review event type (APPROVE, REQUEST_CHANGES, COMMENT)
+        body: Review body text (optional)
+        comments: List of line-specific comments (optional)
+        
+    Returns:
+        JSON string with created review information
+        
+    Note:
+        Requires a valid GitHub token with appropriate permissions
+    """
+    logger.info(f"Creating review for PR #{pull_number} in {owner}/{repo} (event: {event})")
+    return github_tool.create_pull_request_review(owner, repo, pull_number, event, body, comments)
+
+@mcp.tool()
+async def github_get_pull_request_review_comments(owner: str, repo: str, pull_number: int) -> str:
+    """
+    Get review comments for a specific pull request.
+    
+    Args:
+        owner: Repository owner
+        repo: Repository name
+        pull_number: Pull request number
+        
+    Returns:
+        JSON string with pull request review comments
+    """
+    logger.info(f"Getting review comments for PR #{pull_number} in {owner}/{repo}")
+    return github_tool.get_pull_request_review_comments(owner, repo, pull_number)
+
+@mcp.tool()
+async def github_create_pull_request_review_comment(
+    owner: str,
+    repo: str,
+    pull_number: int,
+    body: str,
+    commit_id: str,
+    path: str,
+    line: Optional[int] = None,
+    side: str = "RIGHT"
+) -> str:
+    """
+    Create a review comment on a specific line of a pull request.
+    
+    Args:
+        owner: Repository owner
+        repo: Repository name
+        pull_number: Pull request number
+        body: Comment body
+        commit_id: SHA of the commit to comment on
+        path: File path to comment on
+        line: Line number to comment on (optional, for single-line comments)
+        side: Side of the diff (LEFT or RIGHT, default: RIGHT)
+        
+    Returns:
+        JSON string with created comment information
+        
+    Note:
+        Requires a valid GitHub token with appropriate permissions
+    """
+    logger.info(f"Creating review comment for PR #{pull_number} in {owner}/{repo} on {path}")
+    return github_tool.create_pull_request_review_comment(owner, repo, pull_number, body, commit_id, path, line, side)
+
+@mcp.tool()
+async def github_update_pull_request_review_comment(
+    owner: str,
+    repo: str,
+    comment_id: int,
+    body: str
+) -> str:
+    """
+    Update an existing pull request review comment.
+    
+    Args:
+        owner: Repository owner
+        repo: Repository name
+        comment_id: Comment ID to update
+        body: New comment body
+        
+    Returns:
+        JSON string with updated comment information
+        
+    Note:
+        Requires a valid GitHub token with appropriate permissions
+    """
+    logger.info(f"Updating review comment #{comment_id} in {owner}/{repo}")
+    return github_tool.update_pull_request_review_comment(owner, repo, comment_id, body)
+
+@mcp.tool()
+async def github_delete_pull_request_review_comment(
+    owner: str,
+    repo: str,
+    comment_id: int
+) -> str:
+    """
+    Delete a pull request review comment.
+    
+    Args:
+        owner: Repository owner
+        repo: Repository name
+        comment_id: Comment ID to delete
+        
+    Returns:
+        JSON string with deletion status
+        
+    Note:
+        Requires a valid GitHub token with appropriate permissions
+    """
+    logger.info(f"Deleting review comment #{comment_id} in {owner}/{repo}")
+    return github_tool.delete_pull_request_review_comment(owner, repo, comment_id)
+
+@mcp.tool()
+async def github_get_pull_request_files(owner: str, repo: str, pull_number: int) -> str:
+    """
+    Get files changed in a pull request.
+    
+    Args:
+        owner: Repository owner
+        repo: Repository name
+        pull_number: Pull request number
+        
+    Returns:
+        JSON string with files changed in the pull request
+    """
+    logger.info(f"Getting files for PR #{pull_number} in {owner}/{repo}")
+    return github_tool.get_pull_request_files(owner, repo, pull_number)
+
 # Search Operations
 @mcp.tool()
 async def github_search_repositories(
@@ -376,7 +535,9 @@ if __name__ == "__main__":
     logger.info("📋 Available GitHub tools:")
     logger.info("   Repository: get_info, list, get_contents, get_branches, analyze")
     logger.info("   Issues: list, create")  
-    logger.info("   Pull Requests: list")
+    logger.info("   Pull Requests: list, get_files")
+    logger.info("   PR Reviews: get_reviews, create_review, get_review_comments")
+    logger.info("   PR Comments: create_review_comment, update_review_comment, delete_review_comment")
     logger.info("   Search: repositories, trending")
     logger.info("   Users: get_info")
     logger.info("   Personal: get_my_repositories, get_my_user_info")

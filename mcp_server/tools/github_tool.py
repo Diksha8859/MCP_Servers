@@ -672,6 +672,414 @@ class GitHubTool:
             logger.error(f"Error getting your user info: {e}")
             return json.dumps({"error": str(e)})
 
+    def get_pull_request_reviews(self, owner: str, repo: str, pull_number: int) -> str:
+        """
+        Get reviews for a specific pull request.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            pull_number: Pull request number
+            
+        Returns:
+            JSON string with pull request reviews
+        """
+        try:
+            if not owner or not repo:
+                return json.dumps({"error": "Owner and repo are required"})
+            
+            if not isinstance(pull_number, int) or pull_number <= 0:
+                return json.dumps({"error": "Pull number must be a positive integer"})
+            
+            result = self._make_request("GET", f"repos/{owner}/{repo}/pulls/{pull_number}/reviews")
+            
+            if "error" in result:
+                return json.dumps({"error": result["error"]})
+            
+            reviews_data = []
+            for review in result:
+                review_info = {
+                    "id": review.get("id"),
+                    "user": {
+                        "login": review.get("user", {}).get("login"),
+                        "avatar_url": review.get("user", {}).get("avatar_url")
+                    },
+                    "body": review.get("body"),
+                    "state": review.get("state"),
+                    "submitted_at": review.get("submitted_at"),
+                    "commit_id": review.get("commit_id"),
+                    "html_url": review.get("html_url")
+                }
+                reviews_data.append(review_info)
+            
+            return json.dumps({
+                "operation": "get_pull_request_reviews",
+                "owner": owner,
+                "repo": repo,
+                "pull_number": pull_number,
+                "reviews_count": len(reviews_data),
+                "reviews": reviews_data
+            }, indent=2)
+            
+        except Exception as e:
+            logger.error(f"Error getting PR reviews: {e}")
+            return json.dumps({"error": str(e)})
+
+    def create_pull_request_review(self, owner: str, repo: str, pull_number: int, 
+                                  event: str = "COMMENT", body: Optional[str] = None,
+                                  comments: Optional[List[Dict[str, Any]]] = None) -> str:
+        """
+        Create a review for a pull request.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            pull_number: Pull request number
+            event: Review event type (APPROVE, REQUEST_CHANGES, COMMENT)
+            body: Review body text (optional)
+            comments: List of line-specific comments (optional)
+            
+        Returns:
+            JSON string with created review information
+        """
+        try:
+            if not self.github_token:
+                return json.dumps({"error": "GitHub token required for creating reviews"})
+            
+            if not owner or not repo:
+                return json.dumps({"error": "Owner and repo are required"})
+            
+            if not isinstance(pull_number, int) or pull_number <= 0:
+                return json.dumps({"error": "Pull number must be a positive integer"})
+            
+            valid_events = ["APPROVE", "REQUEST_CHANGES", "COMMENT"]
+            if event not in valid_events:
+                return json.dumps({"error": f"Event must be one of: {valid_events}"})
+            
+            review_data = {
+                "event": event
+            }
+            
+            if body:
+                review_data["body"] = body
+            
+            if comments:
+                review_data["comments"] = comments
+            
+            result = self._make_request("POST", f"repos/{owner}/{repo}/pulls/{pull_number}/reviews", data=review_data)
+            
+            if "error" in result:
+                return json.dumps({"error": result["error"]})
+            
+            review_info = {
+                "id": result.get("id"),
+                "body": result.get("body"),
+                "state": result.get("state"),
+                "user": {
+                    "login": result.get("user", {}).get("login"),
+                    "avatar_url": result.get("user", {}).get("avatar_url")
+                },
+                "submitted_at": result.get("submitted_at"),
+                "html_url": result.get("html_url")
+            }
+            
+            return json.dumps({
+                "operation": "create_pull_request_review",
+                "owner": owner,
+                "repo": repo,
+                "pull_number": pull_number,
+                "review": review_info
+            }, indent=2)
+            
+        except Exception as e:
+            logger.error(f"Error creating PR review: {e}")
+            return json.dumps({"error": str(e)})
+
+    def get_pull_request_review_comments(self, owner: str, repo: str, pull_number: int) -> str:
+        """
+        Get review comments for a specific pull request.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            pull_number: Pull request number
+            
+        Returns:
+            JSON string with pull request review comments
+        """
+        try:
+            if not owner or not repo:
+                return json.dumps({"error": "Owner and repo are required"})
+            
+            if not isinstance(pull_number, int) or pull_number <= 0:
+                return json.dumps({"error": "Pull number must be a positive integer"})
+            
+            result = self._make_request("GET", f"repos/{owner}/{repo}/pulls/{pull_number}/comments")
+            
+            if "error" in result:
+                return json.dumps({"error": result["error"]})
+            
+            comments_data = []
+            for comment in result:
+                comment_info = {
+                    "id": comment.get("id"),
+                    "user": {
+                        "login": comment.get("user", {}).get("login"),
+                        "avatar_url": comment.get("user", {}).get("avatar_url")
+                    },
+                    "body": comment.get("body"),
+                    "path": comment.get("path"),
+                    "position": comment.get("position"),
+                    "line": comment.get("line"),
+                    "diff_hunk": comment.get("diff_hunk"),
+                    "created_at": comment.get("created_at"),
+                    "updated_at": comment.get("updated_at"),
+                    "html_url": comment.get("html_url"),
+                    "pull_request_review_id": comment.get("pull_request_review_id")
+                }
+                comments_data.append(comment_info)
+            
+            return json.dumps({
+                "operation": "get_pull_request_review_comments",
+                "owner": owner,
+                "repo": repo,
+                "pull_number": pull_number,
+                "comments_count": len(comments_data),
+                "comments": comments_data
+            }, indent=2)
+            
+        except Exception as e:
+            logger.error(f"Error getting PR review comments: {e}")
+            return json.dumps({"error": str(e)})
+
+    def create_pull_request_review_comment(self, owner: str, repo: str, pull_number: int,
+                                         body: str, commit_id: str, path: str,
+                                         line: Optional[int] = None, side: str = "RIGHT") -> str:
+        """
+        Create a review comment on a specific line of a pull request.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            pull_number: Pull request number
+            body: Comment body
+            commit_id: SHA of the commit to comment on
+            path: File path to comment on
+            line: Line number to comment on (optional, for single-line comments)
+            side: Side of the diff (LEFT or RIGHT, default: RIGHT)
+            
+        Returns:
+            JSON string with created comment information
+        """
+        try:
+            if not self.github_token:
+                return json.dumps({"error": "GitHub token required for creating review comments"})
+            
+            if not all([owner, repo, body, commit_id, path]):
+                return json.dumps({"error": "Owner, repo, body, commit_id, and path are required"})
+            
+            if not isinstance(pull_number, int) or pull_number <= 0:
+                return json.dumps({"error": "Pull number must be a positive integer"})
+            
+            if side not in ["LEFT", "RIGHT"]:
+                return json.dumps({"error": "Side must be either 'LEFT' or 'RIGHT'"})
+            
+            comment_data = {
+                "body": body,
+                "commit_id": commit_id,
+                "path": path,
+                "side": side
+            }
+            
+            if line is not None:
+                comment_data["line"] = line
+            
+            result = self._make_request("POST", f"repos/{owner}/{repo}/pulls/{pull_number}/comments", data=comment_data)
+            
+            if "error" in result:
+                return json.dumps({"error": result["error"]})
+            
+            comment_info = {
+                "id": result.get("id"),
+                "body": result.get("body"),
+                "path": result.get("path"),
+                "line": result.get("line"),
+                "user": {
+                    "login": result.get("user", {}).get("login"),
+                    "avatar_url": result.get("user", {}).get("avatar_url")
+                },
+                "created_at": result.get("created_at"),
+                "html_url": result.get("html_url"),
+                "diff_hunk": result.get("diff_hunk")
+            }
+            
+            return json.dumps({
+                "operation": "create_pull_request_review_comment",
+                "owner": owner,
+                "repo": repo,
+                "pull_number": pull_number,
+                "comment": comment_info
+            }, indent=2)
+            
+        except Exception as e:
+            logger.error(f"Error creating PR review comment: {e}")
+            return json.dumps({"error": str(e)})
+
+    def update_pull_request_review_comment(self, owner: str, repo: str, comment_id: int, body: str) -> str:
+        """
+        Update an existing pull request review comment.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            comment_id: Comment ID to update
+            body: New comment body
+            
+        Returns:
+            JSON string with updated comment information
+        """
+        try:
+            if not self.github_token:
+                return json.dumps({"error": "GitHub token required for updating review comments"})
+            
+            if not all([owner, repo, body]):
+                return json.dumps({"error": "Owner, repo, and body are required"})
+            
+            if not isinstance(comment_id, int) or comment_id <= 0:
+                return json.dumps({"error": "Comment ID must be a positive integer"})
+            
+            comment_data = {"body": body}
+            
+            result = self._make_request("PATCH", f"repos/{owner}/{repo}/pulls/comments/{comment_id}", data=comment_data)
+            
+            if "error" in result:
+                return json.dumps({"error": result["error"]})
+            
+            comment_info = {
+                "id": result.get("id"),
+                "body": result.get("body"),
+                "path": result.get("path"),
+                "line": result.get("line"),
+                "user": {
+                    "login": result.get("user", {}).get("login"),
+                    "avatar_url": result.get("user", {}).get("avatar_url")
+                },
+                "updated_at": result.get("updated_at"),
+                "html_url": result.get("html_url")
+            }
+            
+            return json.dumps({
+                "operation": "update_pull_request_review_comment",
+                "owner": owner,
+                "repo": repo,
+                "comment_id": comment_id,
+                "comment": comment_info
+            }, indent=2)
+            
+        except Exception as e:
+            logger.error(f"Error updating PR review comment: {e}")
+            return json.dumps({"error": str(e)})
+
+    def delete_pull_request_review_comment(self, owner: str, repo: str, comment_id: int) -> str:
+        """
+        Delete a pull request review comment.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            comment_id: Comment ID to delete
+            
+        Returns:
+            JSON string with deletion status
+        """
+        try:
+            if not self.github_token:
+                return json.dumps({"error": "GitHub token required for deleting review comments"})
+            
+            if not owner or not repo:
+                return json.dumps({"error": "Owner and repo are required"})
+            
+            if not isinstance(comment_id, int) or comment_id <= 0:
+                return json.dumps({"error": "Comment ID must be a positive integer"})
+            
+            result = self._make_request("DELETE", f"repos/{owner}/{repo}/pulls/comments/{comment_id}")
+            
+            if "error" in result:
+                return json.dumps({"error": result["error"]})
+            
+            return json.dumps({
+                "operation": "delete_pull_request_review_comment",
+                "owner": owner,
+                "repo": repo,
+                "comment_id": comment_id,
+                "status": "deleted",
+                "message": "Review comment deleted successfully"
+            }, indent=2)
+            
+        except Exception as e:
+            logger.error(f"Error deleting PR review comment: {e}")
+            return json.dumps({"error": str(e)})
+
+    def get_pull_request_files(self, owner: str, repo: str, pull_number: int) -> str:
+        """
+        Get files changed in a pull request.
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            pull_number: Pull request number
+            
+        Returns:
+            JSON string with files changed in the pull request
+        """
+        try:
+            if not owner or not repo:
+                return json.dumps({"error": "Owner and repo are required"})
+            
+            if not isinstance(pull_number, int) or pull_number <= 0:
+                return json.dumps({"error": "Pull number must be a positive integer"})
+            
+            result = self._make_request("GET", f"repos/{owner}/{repo}/pulls/{pull_number}/files")
+            
+            if "error" in result:
+                return json.dumps({"error": result["error"]})
+            
+            files_data = []
+            for file in result:
+                file_info = {
+                    "filename": file.get("filename"),
+                    "status": file.get("status"),
+                    "additions": file.get("additions"),
+                    "deletions": file.get("deletions"),
+                    "changes": file.get("changes"),
+                    "patch": file.get("patch"),
+                    "blob_url": file.get("blob_url"),
+                    "raw_url": file.get("raw_url"),
+                    "sha": file.get("sha")
+                }
+                files_data.append(file_info)
+            
+            # Calculate totals
+            total_additions = sum(f.get("additions", 0) for f in result)
+            total_deletions = sum(f.get("deletions", 0) for f in result)
+            total_changes = sum(f.get("changes", 0) for f in result)
+            
+            return json.dumps({
+                "operation": "get_pull_request_files",
+                "owner": owner,
+                "repo": repo,
+                "pull_number": pull_number,
+                "files_count": len(files_data),
+                "total_additions": total_additions,
+                "total_deletions": total_deletions,
+                "total_changes": total_changes,
+                "files": files_data
+            }, indent=2)
+            
+        except Exception as e:
+            logger.error(f"Error getting PR files: {e}")
+            return json.dumps({"error": str(e)})
+
     def close(self):
         """Close any connections (placeholder for consistency)"""
         pass

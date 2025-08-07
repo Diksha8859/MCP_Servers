@@ -31,6 +31,13 @@ class GitHubHandler:
             
             # Pull request operations
             "github_list_pull_requests": self._handle_list_pull_requests,
+            "github_get_pull_request_reviews": self._handle_get_pull_request_reviews,
+            "github_create_pull_request_review": self._handle_create_pull_request_review,
+            "github_get_pull_request_review_comments": self._handle_get_pull_request_review_comments,
+            "github_create_pull_request_review_comment": self._handle_create_pull_request_review_comment,
+            "github_update_pull_request_review_comment": self._handle_update_pull_request_review_comment,
+            "github_delete_pull_request_review_comment": self._handle_delete_pull_request_review_comment,
+            "github_get_pull_request_files": self._handle_get_pull_request_files,
             
             # Search operations
             "github_search_repositories": self._handle_search_repositories,
@@ -257,6 +264,100 @@ class GitHubHandler:
         """Handle get my user info operation"""
         return self.github_tool.get_authenticated_user_info()
     
+    async def _handle_get_pull_request_reviews(self, args: Dict[str, Any]) -> str:
+        """Handle get pull request reviews operation"""
+        owner = args.get("owner")
+        repo = args.get("repo")
+        pull_number = args.get("pull_number")
+        
+        if not isinstance(pull_number, int):
+            return json.dumps({"error": "pull_number must be an integer"})
+        
+        return self.github_tool.get_pull_request_reviews(owner, repo, pull_number)
+    
+    async def _handle_create_pull_request_review(self, args: Dict[str, Any]) -> str:
+        """Handle create pull request review operation"""
+        owner = args.get("owner")
+        repo = args.get("repo")
+        pull_number = args.get("pull_number")
+        event = args.get("event", "COMMENT")
+        body = args.get("body")
+        comments = args.get("comments")
+        
+        if not isinstance(pull_number, int):
+            return json.dumps({"error": "pull_number must be an integer"})
+        
+        return self.github_tool.create_pull_request_review(owner, repo, pull_number, event, body, comments)
+    
+    async def _handle_get_pull_request_review_comments(self, args: Dict[str, Any]) -> str:
+        """Handle get pull request review comments operation"""
+        owner = args.get("owner")
+        repo = args.get("repo")
+        pull_number = args.get("pull_number")
+        
+        if not isinstance(pull_number, int):
+            return json.dumps({"error": "pull_number must be an integer"})
+        
+        return self.github_tool.get_pull_request_review_comments(owner, repo, pull_number)
+    
+    async def _handle_create_pull_request_review_comment(self, args: Dict[str, Any]) -> str:
+        """Handle create pull request review comment operation"""
+        owner = args.get("owner")
+        repo = args.get("repo")
+        pull_number = args.get("pull_number")
+        body = args.get("body")
+        commit_id = args.get("commit_id")
+        path = args.get("path")
+        line = args.get("line")
+        side = args.get("side", "RIGHT")
+        
+        if not isinstance(pull_number, int):
+            return json.dumps({"error": "pull_number must be an integer"})
+        
+        if not all([body, commit_id, path]):
+            return json.dumps({"error": "body, commit_id, and path are required"})
+        
+        return self.github_tool.create_pull_request_review_comment(
+            owner, repo, pull_number, body, commit_id, path, line, side
+        )
+    
+    async def _handle_update_pull_request_review_comment(self, args: Dict[str, Any]) -> str:
+        """Handle update pull request review comment operation"""
+        owner = args.get("owner")
+        repo = args.get("repo")
+        comment_id = args.get("comment_id")
+        body = args.get("body")
+        
+        if not isinstance(comment_id, int):
+            return json.dumps({"error": "comment_id must be an integer"})
+        
+        if not body:
+            return json.dumps({"error": "body is required"})
+        
+        return self.github_tool.update_pull_request_review_comment(owner, repo, comment_id, body)
+    
+    async def _handle_delete_pull_request_review_comment(self, args: Dict[str, Any]) -> str:
+        """Handle delete pull request review comment operation"""
+        owner = args.get("owner")
+        repo = args.get("repo")
+        comment_id = args.get("comment_id")
+        
+        if not isinstance(comment_id, int):
+            return json.dumps({"error": "comment_id must be an integer"})
+        
+        return self.github_tool.delete_pull_request_review_comment(owner, repo, comment_id)
+    
+    async def _handle_get_pull_request_files(self, args: Dict[str, Any]) -> str:
+        """Handle get pull request files operation"""
+        owner = args.get("owner")
+        repo = args.get("repo")
+        pull_number = args.get("pull_number")
+        
+        if not isinstance(pull_number, int):
+            return json.dumps({"error": "pull_number must be an integer"})
+        
+        return self.github_tool.get_pull_request_files(owner, repo, pull_number)
+    
     def get_available_tools(self) -> Dict[str, Dict[str, Any]]:
         """Get information about all available GitHub tools"""
         tools_info = {}
@@ -315,7 +416,15 @@ class GitHubHandler:
             "github_search_repositories": ["query"],
             "github_get_user_info": ["username"],
             "github_get_my_repositories": [],
-            "github_get_my_user_info": []
+            "github_get_my_user_info": [],
+            # PR Review tools
+            "github_get_pull_request_reviews": ["owner", "repo", "pull_number"],
+            "github_create_pull_request_review": ["owner", "repo", "pull_number"],
+            "github_get_pull_request_review_comments": ["owner", "repo", "pull_number"],
+            "github_create_pull_request_review_comment": ["owner", "repo", "pull_number", "body", "commit_id", "path"],
+            "github_update_pull_request_review_comment": ["owner", "repo", "comment_id", "body"],
+            "github_delete_pull_request_review_comment": ["owner", "repo", "comment_id"],
+            "github_get_pull_request_files": ["owner", "repo", "pull_number"]
         }
         
         if tool_name in required_params:
