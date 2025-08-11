@@ -1,186 +1,181 @@
-# MCP Servers - MongoDB & GitHub Integration
+# Multi-Platform MCP Server Suite
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![MCP](https://img.shields.io/badge/MCP-1.12.3+-green.svg)](https://github.com/modelcontextprotocol/python-sdk)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![MCP Protocol](https://img.shields.io/badge/MCP-1.12.3-green.svg)](https://modelcontextprotocol.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Professional Model Context Protocol (MCP) servers for seamless integration between Claude Desktop and MongoDB databases, plus comprehensive GitHub repository management.
+**AI-Integrated Database & GitHub Management Platform**
 
-## 🚀 Overview
+A comprehensive suite of Model Context Protocol (MCP) servers enabling AI language models to interact with MongoDB databases and GitHub repositories through natural language commands. Built using FastMCP framework for seamless integration with Claude Desktop and other AI platforms.
 
-This repository contains two production-ready MCP servers:
+## 🚀 Features
 
-### 🗄️ **MongoDB MCP Server**
-- Complete CRUD operations with natural language interface
-- Advanced aggregation pipelines and analytics
-- Collection management and performance monitoring
-- Type-safe operations with comprehensive validation
+### MongoDB MCP Server
+- **Database Operations**: Full CRUD operations with natural language queries
+- **Aggregation Pipelines**: Complex data analysis through conversational AI
+- **Collection Management**: Create, list, and manage MongoDB collections
+- **Real-time Statistics**: Collection stats and database insights
+- **Document Operations**: Insert, update, delete with flexible filtering
 
-### 🐙 **GitHub MCP Server** 
-- Repository management and code browsing
-- Issue tracking and pull request operations
-- Advanced search and trending discovery
-- User and organization management
+### GitHub MCP Server
+- **Repository Management**: Create, clone, and manage repositories
+- **Issue & PR Operations**: Automated issue tracking and pull request management
+- **File Operations**: Read, create, update, delete files directly through AI
+- **Branch Management**: Create, switch, merge branches
+- **Release Management**: Create and manage releases and tags
+- **Organization Tools**: User and organization management
+
+## 🛠️ Technologies
+
+- **Backend**: Python 3.10, FastMCP Framework
+- **Database**: MongoDB, PyMongo
+- **APIs**: GitHub REST API v3, MCP Protocol 1.12.3
+- **AI Integration**: Claude Desktop, Natural Language Processing
+- **Development**: AsyncIO, Environment Management, Comprehensive Logging
+
+## 📦 Installation
+
+### Prerequisites
+- Python 3.10+
+- MongoDB (running locally or remote)
+- GitHub Personal Access Token
+- Claude Desktop (for AI integration)
+
+### Setup
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/Diksha8859/MCP_Servers.git
+cd MCP_Servers
+```
+
+2. **Create virtual environment**
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. **Install dependencies**
+```bash
+pip install -r mcp_server/requirements.txt
+```
+
+4. **Configure environment variables**
+```bash
+cd mcp_server
+cp env.example .env
+# Edit .env with your credentials
+```
+
+### Environment Variables
+
+Create a `.env` file in the `mcp_server` directory:
+
+```env
+# MongoDB Configuration
+MONGODB_URI=mongodb://localhost:27017/
+MONGODB_DATABASE=your_database_name
+MONGODB_COLLECTION=your_collection_name
+
+# GitHub Configuration
+GITHUB_TOKEN=your_github_personal_access_token
+GITHUB_USERNAME=your_github_username
+
+# MCP Server Configuration
+MCP_SERVER_NAME=mcp-servers-suite
+```
+
+## 🔧 Usage
+
+### MongoDB Server
+
+```bash
+cd mcp_server
+python mongodb_server.py
+```
+
+### GitHub Server
+
+```bash
+cd mcp_server
+python github_server.py
+```
+
+### Claude Desktop Integration
+
+1. **Open Claude Desktop**
+2. **Go to Settings → MCP Servers**
+3. **Add Server Configuration:**
+
+**For MongoDB:**
+- Name: `mongodb-mcp-server`
+- Command: `/path/to/venv/bin/python`
+- Arguments: `["/path/to/MCP_Servers/mcp_server/mongodb_server.py"]`
+- Working Directory: `/path/to/MCP_Servers/mcp_server`
+
+**For GitHub:**
+- Name: `github-mcp-server`
+- Command: `/path/to/venv/bin/python`
+- Arguments: `["/path/to/MCP_Servers/mcp_server/github_server.py"]`
+- Working Directory: `/path/to/MCP_Servers/mcp_server`
+
+## 💬 Example Conversations
+
+### MongoDB Operations
+```
+User: "What collections are in my database?"
+Claude: [Lists all MongoDB collections]
+
+User: "Find all users older than 25"
+Claude: [Executes MongoDB query and returns results]
+
+User: "Create a new user with name John and age 30"
+Claude: [Inserts document into users collection]
+```
+
+### GitHub Operations
+```
+User: "Show me information about my latest repository"
+Claude: [Displays repository details, stats, and metadata]
+
+User: "Create a new issue titled 'Bug Fix' in my project repo"
+Claude: [Creates new GitHub issue]
+
+User: "List all open pull requests"
+Claude: [Shows all open PRs with details]
+```
 
 ## 📁 Project Structure
 
 ```
-MCP/
+MCP_Servers/
 ├── mcp_server/
+│   ├── mongodb_server.py          # MongoDB MCP Server
+│   ├── github_server.py           # GitHub MCP Server
+│   ├── requirements.txt           # Python dependencies
+│   ├── .env                       # Environment variables
 │   ├── tools/
-│   │   ├── mongodb.py          # MongoDB operations
-│   │   └── github_tool.py      # GitHub API integration
+│   │   ├── mongodb.py             # MongoDB operations
+│   │   └── github_tool.py         # GitHub API integration
 │   ├── handlers/
-│   │   ├── tool_handler.py     # MongoDB request handling
-│   │   └── github_handler.py   # GitHub request handling
-│   ├── mongodb_server.py       # MongoDB MCP server
-│   ├── github_server.py        # GitHub MCP server
-│   ├── requirements.txt        # Python dependencies
-│   └── docs/                   # Comprehensive documentation
-├── .gitignore
-└── README.md
+│   │   ├── tool_handler.py        # Tool execution handlers
+│   │   └── github_handler.py      # GitHub-specific handlers
+│   ├── claude_config.json         # Claude Desktop configuration
+│   ├── github_config.json         # GitHub server configuration
+│   └── documentation/
+│       ├── MongoDB_MCP_Server_Documentation.pdf
+│       └── GitHub_MCP_Server_Documentation.docx
+├── venv/                          # Virtual environment
+├── README.md                      # This file
+└── .gitignore                     # Git ignore rules
 ```
-
-## 🔧 Quick Start
-
-### Prerequisites
-- Python 3.10+
-- MongoDB instance (for MongoDB server)
-- GitHub Personal Access Token (for GitHub server)
-- Claude Desktop application
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/mcp-servers.git
-   cd mcp-servers
-   ```
-
-2. **Set up virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # Linux/Mac
-   # or
-   venv\Scripts\activate     # Windows
-   ```
-
-3. **Install dependencies**
-   ```bash
-   cd mcp_server
-   pip install -r requirements.txt
-   ```
-
-4. **Configure environment variables**
-   ```bash
-   # Create .env file
-   cp .env.example .env
-   
-   # Edit .env with your settings
-   MONGODB_URI=mongodb://localhost:27017/
-   MONGODB_DATABASE=your_database
-   GITHUB_TOKEN=your_github_token
-   GITHUB_USERNAME=your_username
-   ```
-
-### MongoDB Server Setup
-
-1. **Configure Claude Desktop**
-   ```json
-   {
-     "mcpServers": {
-       "mongodb-mcp-server": {
-         "command": "python",
-         "args": ["/path/to/mcp_server/mongodb_server.py"],
-         "env": {
-           "MONGODB_URI": "mongodb://localhost:27017/",
-           "MONGODB_DATABASE": "your_database"
-         }
-       }
-     }
-   }
-   ```
-
-2. **Start the server**
-   ```bash
-   python mongodb_server.py
-   ```
-
-### GitHub Server Setup
-
-1. **Configure Claude Desktop**
-   ```json
-   {
-     "mcpServers": {
-       "github-mcp-server": {
-         "command": "python",
-         "args": ["/path/to/mcp_server/github_server.py"],
-         "env": {
-           "GITHUB_TOKEN": "your_token",
-           "GITHUB_USERNAME": "your_username"
-         }
-       }
-     }
-   }
-   ```
-
-2. **Start the server**
-   ```bash
-   python github_server.py
-   ```
-
-## 🛠️ Available Tools
-
-### MongoDB Operations
-- `mongodb_find` - Query documents with filtering and sorting
-- `mongodb_insert` - Insert single or multiple documents
-- `mongodb_update` - Update documents with upsert support
-- `mongodb_delete` - Delete documents with filtering
-- `mongodb_aggregate` - Execute aggregation pipelines
-- `mongodb_get_collections` - List all collections
-- `mongodb_get_collection_stats` - Get collection statistics
-
-### GitHub Operations
-- `github_get_repository_info` - Get repository details
-- `github_list_repositories` - List user/org repositories
-- `github_get_repository_contents` - Browse files and directories
-- `github_list_issues` - List and filter issues
-- `github_create_issue` - Create new issues
-- `github_search_repositories` - Advanced repository search
-- `github_get_user_info` - Get user profile information
-- And 6+ more tools for comprehensive GitHub management
-
-## 📚 Documentation
-
-- **[MongoDB MCP Server Documentation](mcp_server/MongoDB_MCP_Documentation.md)** - Complete implementation guide
-- **[GitHub MCP Server Documentation](mcp_server/GitHub_MCP_Documentation.md)** - Comprehensive API reference
-- **[Implementation Tickets](mcp_server/TICKETS.md)** - Development roadmap and architecture
-
-## 🌟 Features
-
-### MongoDB Server
-- ✅ Natural language database queries
-- ✅ Advanced aggregation and analytics
-- ✅ Real-time performance monitoring
-- ✅ Type-safe operations with validation
-- ✅ Connection pooling and optimization
-- ✅ Comprehensive error handling
-
-### GitHub Server
-- ✅ Complete repository management
-- ✅ Issue and PR workflow integration
-- ✅ Advanced search and discovery
-- ✅ Personal and organization operations
-- ✅ Rate limiting and authentication
-- ✅ Real-time GitHub data access
 
 ## 🔒 Security
 
-- Environment-based configuration
-- Secure credential management
-- Input validation and sanitization
-- Rate limiting and error handling
-- No hardcoded secrets or tokens
+- **Environment Variables**: Store sensitive data in `.env` files
+- **GitHub Token**: Use GitHub Personal Access Tokens with minimal required permissions
+- **MongoDB**: Configure proper authentication for production use
+- **Network**: Restrict database and API access in production environments
 
 ## 🤝 Contributing
 
@@ -194,60 +189,19 @@ MCP/
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 💡 Usage Examples
+## 🙏 Acknowledgments
 
-### MongoDB Natural Language Queries
-```
-"Show me all active users created in the last month"
-"Calculate average order value by customer segment"
-"Find products with low inventory levels"
-```
+- [Model Context Protocol](https://modelcontextprotocol.io/) for the MCP framework
+- [Anthropic](https://www.anthropic.com/) for Claude Desktop integration
+- [MongoDB](https://www.mongodb.com/) for database capabilities
+- [GitHub](https://github.com/) for repository management APIs
 
-### GitHub Operations
-```
-"Show me trending Python repositories this week"
-"List all open issues in microsoft/vscode with bug labels"
-"Get information about the FastAPI repository"
-"Create an issue for login bug in my project"
-```
+## 📞 Contact
 
-## 🚀 Architecture
+**Diksha** - [@Diksha8859](https://github.com/Diksha8859)
 
-Both servers follow modern software architecture patterns:
-
-- **Repository Pattern** for data access abstraction
-- **Handler Pattern** for request routing and validation  
-- **Decorator Pattern** for clean tool registration
-- **Strategy Pattern** for different operation types
-- **Factory Pattern** for component instantiation
-
-## 📊 Performance
-
-- Async/await for non-blocking operations
-- Connection pooling for database efficiency
-- Intelligent caching for frequently accessed data
-- Rate limiting compliance for API operations
-- Memory-efficient processing for large datasets
-
-## 🔧 Development
-
-### Running Tests
-```bash
-python -m pytest tests/
-```
-
-### Code Formatting
-```bash
-black mcp_server/
-```
-
-### Type Checking
-```bash
-mypy mcp_server/
-```
+Project Link: [https://github.com/Diksha8859/MCP_Servers](https://github.com/Diksha8859/MCP_Servers)
 
 ---
 
-**Built with ❤️ for the Claude Desktop and MCP ecosystem**
-
-For support, please open an issue or contact the development team.
+⭐ **Star this repository if you find it helpful!**
